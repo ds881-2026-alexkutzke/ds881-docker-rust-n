@@ -31,7 +31,7 @@ A API expõe um único endpoint na porta `8080`.
 ### 2. Desenvolvimento (Automation)
 
 1. Crie um arquivo Dockerfile nomeado com a sua identificação (ex: `joao.Dockerfile`).
-2. Crie um script de automação (`.bat` ou `.sh`) contendo os comandos exatos para construir (`docker build`) e executar (`docker run`) a sua imagem, garantindo o mapeamento da porta 8080.
+2. Crie um script de automação (`.sh`) contendo os comandos exatos para construir (`docker build`) e executar (`docker run`) a sua imagem, garantindo o mapeamento da porta 8080.
 3. Teste a sua imagem localmente enviando uma requisição para a API. Utilize o comando abaixo no terminal:
 
 ```bash
