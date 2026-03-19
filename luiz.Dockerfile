@@ -11,8 +11,6 @@ RUN RUSTFLAGS="-C link-arg=-s" cargo build --release
 # Runtime stage
 FROM alpine:3.21.6
 
-RUN apk add --no-cache ca-certificates
-
 WORKDIR /app
 
 COPY --from=builder /usr/src/app/target/release/calculadora_api /app/calculadora_api
