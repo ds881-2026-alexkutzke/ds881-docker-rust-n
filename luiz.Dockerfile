@@ -9,12 +9,10 @@ COPY . .
 RUN RUSTFLAGS="-C link-arg=-s" cargo build --release
 
 # Runtime stage
-FROM alpine:3.21.6
+# Distroless
+FROM scratch
 
-WORKDIR /app
-
-COPY --from=builder /usr/src/app/target/release/calculadora_api /app/calculadora_api
+COPY --from=builder /usr/src/app/target/release/calculadora_api /calculadora_api
 
 EXPOSE 8080
-
-CMD ["./calculadora_api"]
+ENTRYPOINT ["/calculadora_api"]
