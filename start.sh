@@ -1,1 +1,1 @@
- docker build -t luiz/rust:v7 -f luiz.Dockerfile . && docker run -p 8080:8080 -d luiz/rust:v7
+ docker build -t luiz/rust:v10 -f luiz.Dockerfile . && docker run -p 8080:8080 -d luiz/rust:v10
