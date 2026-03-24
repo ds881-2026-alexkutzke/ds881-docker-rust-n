@@ -11,7 +11,7 @@ RUN mkdir src \
     && rm -rf src
 
 COPY src ./src
-RUN RUSTFLAGS="-C strip=symbols" cargo build --release
+RUN touch src/main.rs && RUSTFLAGS="-C strip=symbols" cargo build --release
 
 FROM scratch
 
