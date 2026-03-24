@@ -1,6 +1,8 @@
 Dockerfile
+target/
 .git
 .gitignore
+*.Dockerfile
 README.md
 .dockerignore
 *.sh
