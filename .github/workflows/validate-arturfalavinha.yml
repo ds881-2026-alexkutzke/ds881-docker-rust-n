@@ -1,0 +1,65 @@
+name: Validate Artur Docker Submission
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - build/**
+      - codex/**
+    paths:
+      - arturfalavinha.Dockerfile
+      - build_arturfalavinha.sh
+      - Cargo.toml
+      - Cargo.lock
+      - src/**
+      - .github/workflows/validate-arturfalavinha.yml
+  pull_request:
+    paths:
+      - arturfalavinha.Dockerfile
+      - build_arturfalavinha.sh
+      - Cargo.toml
+      - Cargo.lock
+      - src/**
+      - .github/workflows/validate-arturfalavinha.yml
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate Docker submission
+        run: bash ./build_arturfalavinha.sh
+
+      - name: Confirm API response
+        run: |
+          response=$(curl --silent --show-error --fail \
+            --header "Content-Type: application/json" \
+            --data '{"operador":"multiplicacao","op1":7,"op2":6}' \
+            http://localhost:8080/calcular)
+
+          python3 - <<'PY' "$response"
+          import json
+          import sys
+
+          payload = json.loads(sys.argv[1])
+          result = payload.get("resultado")
+
+          if result != 42 and result != 42.0:
+              raise SystemExit(f"Unexpected result: {payload}")
+
+          print(f"Validated response: {payload}")
+          PY
+
+      - name: Report image size
+        run: |
+          docker image inspect arturfalavinha/calculadora-api:latest \
+            --format 'Image size: {{.Size}} bytes'
+
+      - name: Cleanup container
+        if: always()
+        run: docker rm -f arturfalavinha-calculadora-api || true
