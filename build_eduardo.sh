@@ -11,7 +11,7 @@ echo "🚀 Iniciando Pipeline DevOps - Eduardo Kaique"
 echo "---------------------------------------------------"
 
 echo "🛠️ Passo 1: Construindo imagem $IMAGE_NAME..."
-docker build -t $IMAGE_NAME -f $DOCKERFILE .
+docker build -t "$IMAGE_NAME" -f "$DOCKERFILE" .
 
 if [ $? -ne 0 ]; then
     echo "❌ ERRO: Falha no build do Docker. Verifique seu Dockerfile."
@@ -20,20 +20,33 @@ fi
 
 if [ "$(docker ps -aq -f name=$CONTAINER_NAME)" ]; then
     echo "🧹 Passo 2: Removendo container antigo..."
-    docker rm -f $CONTAINER_NAME
+    docker rm -f "$CONTAINER_NAME"
 fi
 
 echo "🏃 Passo 3: Rodando o container $CONTAINER_NAME..."
 docker run -d \
-    --name $CONTAINER_NAME \
-    -p $PORTA_LOCAL:$PORTA_CONTAINER \
-    $IMAGE_NAME
+    --name "$CONTAINER_NAME" \
+    -p "$PORTA_LOCAL":"$PORTA_CONTAINER" \
+    "$IMAGE_NAME"
 
-echo "⏳ Aguardando a API inicializar..."
-sleep 2
+echo "⏳ Aguardando a API (Healthcheck)..."
+MAX_RETRIES=20
+COUNT=0
+until $(curl -s -f -o /dev/null http://localhost:"$PORTA_LOCAL"/calcular -X POST -H "Content-Type: application/json" -d '{"operador": "soma", "op1": 1, "op2": 1}'); do
+    printf '.'
+    sleep 1
+    ((COUNT++))
+    if [ $COUNT -ge $MAX_RETRIES ]; then
+        echo "❌ Erro: API não subiu a tempo."
+        docker logs "$CONTAINER_NAME"
+        exit 1
+    fi
+done
 
-TAMANHO=$(docker images $IMAGE_NAME --format "{{.Size}}")
-echo "📊 MÉTRICA: Tamanho final da imagem ($IMAGE_NAME): $TAMANHO"
+echo -e "\n✅ API Online!"
+
+TAMANHO=$(docker images "$IMAGE_NAME" --format "{{.Size}}")
+echo "📊 Tamanho Final: $TAMANHO"
 
 echo "🧪 Passo 4: Testando endpoint /calcular..."
 RESPONSE=$(curl -s -X POST http://localhost:$PORTA_LOCAL/calcular \

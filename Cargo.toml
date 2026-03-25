@@ -8,14 +8,3 @@ axum = "0.7"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 gethostname = "0.4"
-
-[profile.release]
-# Optimize for size
-opt-level = "z"     
-lto = true           
-codegen-units = 1   
-panic = "abort"     
-strip = true        
-
-[profile.release.package."*"]
-opt-level = "z"      
